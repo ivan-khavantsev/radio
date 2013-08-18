@@ -1,0 +1,14 @@
+<component name="libraryTable">
+  <library name="jspeex">
+    <CLASSES>
+      <root url="jar://D:/Projects/Development/java/libs/jspeex/jspeex.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES>
+      <root url="jar://D:/Projects/Development/java/libs/jspeex/jspeex_all-src.zip!/jspeex_codec-src/main/trunk/codec/src/main/java" />
+      <root url="jar://D:/Projects/Development/java/libs/jspeex/jspeex_all-src.zip!/jspeex_codec-src/main/trunk/codec/src/test/java" />
+      <root url="jar://D:/Projects/Development/java/libs/jspeex/jspeex_all-src.zip!/jspeex_codec-src/main/trunk/codec/src/test" />
+      <root url="jar://D:/Projects/Development/java/libs/jspeex/jspeex_all-src.zip!/jspeex_codec-src/main/trunk/codec/src/testiu/java" />
+    </SOURCES>
+  </library>
+</component>
