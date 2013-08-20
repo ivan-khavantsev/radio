@@ -5,20 +5,53 @@ import audio.analysis.FourierTransform;
 import utils.Plot;
 
 import java.awt.*;
+import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigInteger;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.ShortBuffer;
+import java.util.LinkedList;
+import java.util.Queue;
 
 public class Demodulator {
 
-    private InputStream inputStream;
-    FourierTransform fft = new FFT(Modulator.SAMPLES_PER_BIT, Modulator.SAMPLE_RATE);
+    class InBuffer extends InputStream {
+        private InputStream is = null;
+        private ByteBuffer bb = null;
+        Queue<Byte> arrayQueue = new LinkedList<Byte>();
+
+        public InBuffer(InputStream is) {
+            this.is = new BufferedInputStream(is, 2);
+        }
+
+
+        public void add(byte[] data, int offset, int count) {
+            for (int i = offset; i < offset + count; i++) {
+                arrayQueue.add(data[i]);
+            }
+        }
+
+
+        @Override
+        public int read() throws IOException {
+            int ret = -1;
+            if (!arrayQueue.isEmpty()) {
+                ret = arrayQueue.poll() & 0xFF;
+            } else {
+                ret = is.read();
+            }
+            return ret;  //To change body of implemented methods use File | Settings | File Templates.
+        }
+    }
+    //Plot plot = new Plot("Note A Spectrum", 1280, 512);
+    private InBuffer inputStream;
+    private FourierTransform fft = new FFT(Modulator.SAMPLES_PER_BIT, Modulator.SAMPLE_RATE);
+    // private FourierTransform syncFft = new FFT(SYNC_SAMPLES_PER_SYMBOL, Modulator.SAMPLE_RATE);
 
     public Demodulator(InputStream inputStream) {
-        this.inputStream = inputStream;
+        this.inputStream = new InBuffer(inputStream);
     }
 
     /*
@@ -26,7 +59,7 @@ public class Demodulator {
      */
     public synchronized byte[] demodulate(int packetSize) throws Exception {
         ByteBuffer dataBuffer = ByteBuffer.allocate(packetSize);
-        this.sync();
+        this.sync1(packetSize);
         for (int i = 0; i < packetSize; i++) {
             byte b = this.readByte();
             dataBuffer.put(b);
@@ -34,66 +67,95 @@ public class Demodulator {
         return dataBuffer.array();
     }
 
+//    private void sync() throws IOException {
+//        int[] syncTrue = new int[4];
+//        while (true) {
+//            byte[] syncBytes = new byte[SYNC_SAMPLES_PER_SYMBOL * 2];
+//            inputStream.read(syncBytes, 0, syncBytes.length);
+//            float[] syncFloats = getFloatSamples(syncBytes);
+//            syncFft.forward(syncFloats);
+//            int max = max(syncFft.getSpectrum(), 1, 4);
+//            syncTrue[syncTrue.length-1] = max;
+//            if(syncTrue[0]==2 && syncTrue[1]==1 && syncTrue[2]==4 && syncTrue[3] == 3){
+//                break;
+//            }else{
+//                syncTrue = moveLeft(syncTrue,1);
+//            }
+//        }
+//
+//
+//    }
 
-    private void sync() throws IOException {
+    private void sync1(int packetSize) throws IOException {
         /*
             Синхронизация последовательностью Бэкера
             sync = [+1, +1, +1, -1, -1, +1, -1];
          */
-        byte[] syncBytes = new byte[Modulator.SYNC_BYTES.length];
+        //((packetSize * Modulator.SAMPLES_PER_BYTE)*Modulator.BYTES_PER_SAMPLE) +
+        int fullPacketSize = (Modulator.SYNC_SEQUENCE.length * Modulator.SYNC_SAMPLES_PER_SYMBOL) * 2;
+        byte[] syncBytes = new byte[fullPacketSize];
         inputStream.read(syncBytes, 0, syncBytes.length);
         float[] audioFloats = this.getFloatSamples(syncBytes);
 
 
         while (true) {
-            float[] rf = getRF(audioFloats);
-            int max = max(rf); //????
-            int symbol = (int)Math.floor(max/Modulator.SYNC_SAMPLES_PER_SYMBOL);
-            if (rf[max]> 0.5f && symbol == 0) {
+            int ii = max(audioFloats);
+            float max = audioFloats[ii];
+
+
+
+            if (max > 0.3f && rf(audioFloats) > max-0.1f) {
                 break;
             } else {
-                audioFloats = moveLeft(audioFloats, 3);
-                byte[] tmp = new byte[6];
+                audioFloats = moveLeft(audioFloats, 1);
+                byte[] tmp = new byte[2];
                 inputStream.read(tmp, 0, tmp.length);
-                float[] ftmp = getFloatSamples(tmp);
-                System.arraycopy(ftmp, 0, audioFloats, audioFloats.length - 3, 3);
+                float[] dochitannieSamples = getFloatSamples(tmp);
+                audioFloats[audioFloats.length - 1] = dochitannieSamples[0];
             }
         }
     }
 
-    Plot plot = new Plot("Note A Spectrum", 1280, 512);
+
+
     public float[] getRF(float[] samples) {
         float[] rf = new float[samples.length]; // ??? - Значения взаимной корреляционной функции
-        float[] sums = new float[ Modulator.SYNC_PACKET.length];
+        float[] sums = new float[Modulator.SYNC_SEQUENCE.length];
         float r = 0;
-        for (int i = 0; i <  Modulator.SYNC_PACKET.length-1; i++) {
+        for (int i = 0; i < Modulator.SYNC_SEQUENCE.length - 1; i++) {
             float s = 0;
-            for (int j = 0; j < Modulator.SYNC_PACKET.length-1; j++) {
+            for (int j = 0; j < Modulator.SYNC_SEQUENCE.length - 1; j++) {
                 s = s + samples[i * Modulator.SYNC_SAMPLES_PER_SYMBOL + j];
             }
             sums[i] = s;
-            r = r + (sums[i] * Modulator.SYNC_PACKET[i]) / Modulator.SYNC_SAMPLES_PER_SYMBOL;
+            r = r + (sums[i] * Modulator.SYNC_SEQUENCE[i]) / Modulator.SYNC_SAMPLES_PER_SYMBOL;
         }
 
-        rf[0] = r / Modulator.SYNC_PACKET.length;
+        rf[0] = r / Modulator.SYNC_SEQUENCE.length;
 
 
-        for (int i = 2; i < (samples.length - Modulator.SYNC_SAMPLES_PER_SYMBOL * Modulator.SYNC_PACKET.length); i++) {
+        for (int i = 2; i < (samples.length - Modulator.SYNC_SAMPLES_PER_SYMBOL * Modulator.SYNC_SEQUENCE.length); i++) {
             r = 0;
-            for (int j = 1; j < Modulator.SYNC_PACKET.length; j++) {
+            for (int j = 1; j < Modulator.SYNC_SEQUENCE.length; j++) {
                 sums[j] = sums[j] - samples[i - 1 + (j - 1) * Modulator.SYNC_SAMPLES_PER_SYMBOL] + samples[i - 1 + j * Modulator.SYNC_SAMPLES_PER_SYMBOL];
-                r = r + sums[j] * Modulator.SYNC_PACKET[j] / Modulator.SYNC_SAMPLES_PER_SYMBOL;
+                r = r + sums[j] * Modulator.SYNC_SEQUENCE[j] / Modulator.SYNC_SAMPLES_PER_SYMBOL;
             }
-            rf[i] = r / Modulator.SYNC_PACKET.length;
+            rf[i] = r / Modulator.SYNC_SEQUENCE.length;
         }
         //plot.clear();
-        plot.plot(samples, 1, Color.blue);
-        plot.plot(rf, 1, Color.red);
+        // plot.plot(samples, 1, Color.blue);
+        //  plot.plot(rf, 1, Color.red);
         return rf;
     }
 
     public static float[] moveLeft(float[] array, int positions) {
         float[] temp = new float[array.length];
+        System.arraycopy(array, positions, temp, 0, array.length - positions);
+        return temp;
+    }
+
+    public static int[] moveLeft(int[] array, int positions) {
+        int[] temp = new int[array.length];
         System.arraycopy(array, positions, temp, 0, array.length - positions);
         return temp;
     }
@@ -150,10 +212,34 @@ public class Demodulator {
         return audioFloats;
     }
 
+    public static int max(float[] array, int offset, int length) {
+        int max = offset;
+        for (int i = offset; i < length; i++) if (array[i] > array[max]) max = i;
+        return max;
+    }
 
     public static int max(float[] array) {
         int max = 0;
         for (int i = 0; i < array.length; i++) if (array[i] > array[max]) max = i;
         return max;
     }
+
+
+    public float rf(float[] samples) {
+        float[] sums = new float[Modulator.SYNC_SEQUENCE.length];
+        float r = 0;
+        for (int i = 0; i < Modulator.SYNC_SEQUENCE.length; i++) {
+            float s = 0;
+            for (int j = 0; j < Modulator.SYNC_SAMPLES_PER_SYMBOL; j++) {
+                int cc = i * Modulator.SYNC_SAMPLES_PER_SYMBOL + j;
+                s = s + samples[cc];
+            }
+            sums[i] = s;
+            r = r + (sums[i] * Modulator.SYNC_SEQUENCE[i]) / Modulator.SYNC_SAMPLES_PER_SYMBOL;
+        }
+
+        float result = r / Modulator.SYNC_SEQUENCE.length;
+        return result;
+    }
+
 }

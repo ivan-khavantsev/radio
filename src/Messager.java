@@ -20,12 +20,12 @@ public class Messager {
             @Override
             public void run() {
                 Demodulator demodulator = new Demodulator(new AudioInputStream(AudioChannel.getInLine()));
-                try {
-                    Thread.sleep(1000);
-                } catch(InterruptedException ex) {
-                    Thread.currentThread().interrupt();
-                }
-                while (true) {
+//                try {
+//                   Thread.sleep(1000);
+//                } catch(InterruptedException ex) {
+//                    Thread.currentThread().interrupt();
+//                }
+                for (int i =0 ;i<10000;i++) {
                     try {
                         byte[] encrypted = demodulator.demodulate(48);
                         byte[] data = aes.decrypt(encrypted);
