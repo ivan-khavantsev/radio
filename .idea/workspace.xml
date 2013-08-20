@@ -8,20 +8,17 @@
     <list default="true" id="8d202c71-b5f8-4a29-9ea8-d3015051819c" name="Default" comment="">
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/modem/Demodulator.java" afterPath="$PROJECT_DIR$/src/modem/Demodulator.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/Main.java" afterPath="$PROJECT_DIR$/src/Main.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/Messager.java" afterPath="$PROJECT_DIR$/src/Messager.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/modem/Modulator.java" afterPath="$PROJECT_DIR$/src/modem/Modulator.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/proj1.iml" afterPath="$PROJECT_DIR$/proj1.iml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/vcs.xml" afterPath="$PROJECT_DIR$/.idea/vcs.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
     </list>
     <ignored path="proj1.iws" />
     <ignored path=".idea/workspace.xml" />
     <file path="/Main.java" changelist="8d202c71-b5f8-4a29-9ea8-d3015051819c" time="1375953825467" ignored="false" />
     <file path="/index.html" changelist="8d202c71-b5f8-4a29-9ea8-d3015051819c" time="1374403397403" ignored="false" />
-    <file path="$PROJECT_DIR$/../FFT/src/com/badlogic/audio/samples/part5/FourierTransformPlot.java" changelist="8d202c71-b5f8-4a29-9ea8-d3015051819c" time="1377019978755" ignored="false" />
+    <file path="$PROJECT_DIR$/../FFT/src/com/badlogic/audio/samples/part5/FourierTransformPlot.java" changelist="8d202c71-b5f8-4a29-9ea8-d3015051819c" time="1377026593813" ignored="false" />
     <file path="/FourierTransformPlot.java" changelist="8d202c71-b5f8-4a29-9ea8-d3015051819c" time="1377018161578" ignored="false" />
-    <file path="/Modulator.java" changelist="8d202c71-b5f8-4a29-9ea8-d3015051819c" time="1377005508288" ignored="false" />
-    <file path="/Demodulator.java" changelist="8d202c71-b5f8-4a29-9ea8-d3015051819c" time="1377020127329" ignored="false" />
+    <file path="/Modulator.java" changelist="8d202c71-b5f8-4a29-9ea8-d3015051819c" time="1377022673153" ignored="false" />
+    <file path="/Demodulator.java" changelist="8d202c71-b5f8-4a29-9ea8-d3015051819c" time="1377022239979" ignored="false" />
     <file path="$PROJECT_DIR$/../FFT/src/com/badlogic/audio/samples/part6/RectifiedSpectralFlux.java" changelist="8d202c71-b5f8-4a29-9ea8-d3015051819c" time="1375927857567" ignored="false" />
     <file path="$PROJECT_DIR$/src/audio/visualization/PlaybackVisualizer.java" changelist="8d202c71-b5f8-4a29-9ea8-d3015051819c" time="1375927899516" ignored="false" />
     <file path="$PROJECT_DIR$/src/audio/visualization/Plot.java" changelist="8d202c71-b5f8-4a29-9ea8-d3015051819c" time="1375927900083" ignored="false" />
@@ -169,7 +166,7 @@
         <option name="CONDITION" value="" />
         <option name="LOG_MESSAGE" value="" />
       </breakpoint>
-      <breakpoint url="file://$PROJECT_DIR$/src/modem/Demodulator.java" line="79" class="modem.Demodulator" package="modem">
+      <breakpoint url="file://$PROJECT_DIR$/src/modem/Modulator.java" line="42" class="modem.Modulator" package="modem">
         <option name="ENABLED" value="true" />
         <option name="LOG_ENABLED" value="false" />
         <option name="LOG_EXPRESSION_ENABLED" value="false" />
@@ -195,14 +192,13 @@
   </component>
   <component name="FileEditorManager">
     <leaf>
-      <file leaf-file-name="Demodulator.java" pinned="false" current="true" current-in-tab="true">
+      <file leaf-file-name="Demodulator.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/modem/Demodulator.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="106" column="45" selection-start="3451" selection-end="3451" vertical-scroll-proportion="0.5405405">
+            <state line="132" column="75" selection-start="4307" selection-end="4307" vertical-scroll-proportion="0.0">
               <folding>
-                <element signature="e#574#580#0" expanded="true" />
-                <marker date="1377020196855" expanded="true" signature="3502:3819" placeholder="..." />
-                <marker date="1377020196855" expanded="true" signature="3502:3819" placeholder="..." />
+                <marker date="1377022241392" expanded="true" signature="1333:1634" placeholder="..." />
+                <marker date="1377022241392" expanded="true" signature="1333:1634" placeholder="..." />
               </folding>
             </state>
           </provider>
@@ -262,7 +258,7 @@
       <file leaf-file-name="Main.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/Main.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="4" column="7" selection-start="91" selection-end="91" vertical-scroll-proportion="0.0">
+            <state line="6" column="23" selection-start="197" selection-end="197" vertical-scroll-proportion="0.0">
               <folding />
             </state>
           </provider>
@@ -271,7 +267,7 @@
       <file leaf-file-name="Modulator.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/modem/Modulator.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="17" column="55" selection-start="545" selection-end="546" vertical-scroll-proportion="0.0">
+            <state line="35" column="14" selection-start="1249" selection-end="1249" vertical-scroll-proportion="0.0">
               <folding />
             </state>
           </provider>
@@ -286,10 +282,10 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="Messager.java" pinned="false" current="false" current-in-tab="false">
+      <file leaf-file-name="Messager.java" pinned="false" current="true" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/Messager.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="47" column="25" selection-start="1321" selection-end="1321" vertical-scroll-proportion="0.0">
+            <state line="51" column="16" selection-start="1522" selection-end="1522" vertical-scroll-proportion="0.6387283">
               <folding />
             </state>
           </provider>
@@ -325,10 +321,10 @@
         <option value="$PROJECT_DIR$/src/utils/Hash.java" />
         <option value="$PROJECT_DIR$/src/crypt/AES.java" />
         <option value="$PROJECT_DIR$/src/Plot.java" />
-        <option value="$PROJECT_DIR$/src/Messager.java" />
-        <option value="$PROJECT_DIR$/src/modem/Modulator.java" />
-        <option value="$PROJECT_DIR$/src/modem/Demodulator.java" />
         <option value="$PROJECT_DIR$/src/Main.java" />
+        <option value="$PROJECT_DIR$/src/modem/Demodulator.java" />
+        <option value="$PROJECT_DIR$/src/modem/Modulator.java" />
+        <option value="$PROJECT_DIR$/src/Messager.java" />
       </list>
     </option>
   </component>
@@ -701,6 +697,7 @@
       <window_info id="Changes" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="JetGradle" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Palette" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
+      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32820514" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Database" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
@@ -717,10 +714,9 @@
       <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="SLIDING" type="SLIDING" visible="false" weight="0.4" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Application Servers" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.2560606" sideWeight="0.6717949" order="0" side_tool="false" content_ui="combo" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.32820514" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32820514" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
-      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32820514" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="3" side_tool="false" content_ui="combo" />
       <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
     </layout>
@@ -878,35 +874,34 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/Messager.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="47" column="25" selection-start="1321" selection-end="1321" vertical-scroll-proportion="0.0">
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/modem/Modulator.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="17" column="55" selection-start="545" selection-end="546" vertical-scroll-proportion="0.0">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/Main.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="4" column="7" selection-start="91" selection-end="91" vertical-scroll-proportion="0.0">
+        <state line="35" column="14" selection-start="1249" selection-end="1249" vertical-scroll-proportion="0.0">
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/modem/Demodulator.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="106" column="45" selection-start="3451" selection-end="3451" vertical-scroll-proportion="0.5405405">
+        <state line="132" column="75" selection-start="4307" selection-end="4307" vertical-scroll-proportion="0.0">
           <folding>
-            <element signature="e#574#580#0" expanded="true" />
-            <marker date="1377020196855" expanded="true" signature="3502:3819" placeholder="..." />
-            <marker date="1377020196855" expanded="true" signature="3502:3819" placeholder="..." />
+            <marker date="1377022241392" expanded="true" signature="1333:1634" placeholder="..." />
+            <marker date="1377022241392" expanded="true" signature="1333:1634" placeholder="..." />
           </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/Main.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="6" column="23" selection-start="197" selection-end="197" vertical-scroll-proportion="0.0">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/Messager.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="51" column="16" selection-start="1522" selection-end="1522" vertical-scroll-proportion="0.6387283">
+          <folding />
         </state>
       </provider>
     </entry>

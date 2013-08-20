@@ -1,7 +1,5 @@
 package modem;
 
-import org.apache.commons.lang3.ArrayUtils;
-
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
 
@@ -10,18 +8,18 @@ public class Modulator {
     public static final int SAMPLE_RATE = 44100;
     public static final int SAMPLES_PER_BIT = 16;
     public static final int SAMPLES_PER_BYTE = SAMPLES_PER_BIT * 8;
-    public static final int BYTES_PER_SAMPLE = 2;
+    public static final int BYTES_PER_AUDIO_SAMPLE = 2;
 
     public static final byte[] SYNC_READY_BYTES;
 
     public static final float[] SYNC_SEQUENCE = {+1, +1, +1, -1, -1, +1, -1};
-    public static final int SYNC_SAMPLES_PER_SYMBOL = 3;
+    public static final int SYNC_SAMPLES_PER_SYMBOL = 4;
 
     static {
         float[] tempSync = new float[SYNC_SEQUENCE.length * SYNC_SAMPLES_PER_SYMBOL];
         for (int i = 0; i < SYNC_SEQUENCE.length; i++) {
             for (int j = 0; j < SYNC_SAMPLES_PER_SYMBOL; j++) {
-                tempSync[i * SYNC_SAMPLES_PER_SYMBOL + j] =  SYNC_SEQUENCE[i];
+                tempSync[i * SYNC_SAMPLES_PER_SYMBOL + j] = SYNC_SEQUENCE[i];
             }
         }
 
@@ -32,46 +30,15 @@ public class Modulator {
     private static final float[] FREQUENCIES = {689, 2756};   //0 - 689 MHz, 1 -2756 MHz
     private float angle = 0;
 
-    public byte[] getSyncBytes(){
-
-
-        float samples[] = new float[64*4];
-        float increment;
-        for(int i = 0; i<4;i++){
-            if(i==0){
-                increment = (float) (2 * Math.PI) * 1378 / 44100;
-            }else if(i==1){
-                increment = (float) (2 * Math.PI) * 689 / 44100;
-            }else if(i==2){
-                increment = (float) (2 * Math.PI) * 2756 / 44100;
-            }else{
-                increment = (float) (2 * Math.PI) * 2067 / 44100;
-            }
-
-            for(int j=0;j<64;j++){
-
-                samples[i*64+j] = (float) Math.sin(angle);
-                angle += increment;
-            }
-
-        }
-
-
-        return getSampleBytes(samples);
-    }
-
-
     public byte[] modulate(byte[] data) {
-        ByteBuffer samplesByteBuffer = ByteBuffer.allocate((data.length * SAMPLES_PER_BYTE * BYTES_PER_SAMPLE) + SYNC_READY_BYTES.length);
+        ByteBuffer samplesByteBuffer = ByteBuffer.allocate((data.length * SAMPLES_PER_BYTE * BYTES_PER_AUDIO_SAMPLE) + SYNC_READY_BYTES.length);
         samplesByteBuffer.put(SYNC_READY_BYTES);
-
 
         for (byte b : data) {
             float[] floatSamples = this.getByteFloats(b);
-            byte[] byteSamples = getSampleBytes(floatSamples);
+            byte[] byteSamples = this.getSampleBytes(floatSamples);
             samplesByteBuffer.put(byteSamples);
         }
-
 
         angle = 0;
         return samplesByteBuffer.array();
