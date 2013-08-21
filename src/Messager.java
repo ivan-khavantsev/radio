@@ -9,7 +9,6 @@ public class Messager {
     private AES aes = null;
 
     public void start() {
-
         try {
             aes = new AES("abc");
         } catch (Throwable t) {
@@ -25,9 +24,9 @@ public class Messager {
 //                } catch(InterruptedException ex) {
 //                    Thread.currentThread().interrupt();
 //                }
-                for (int i =0 ;i<10000;i++) {
+                for (int i = 0; i < 10000; i++) {
                     try {
-                        byte[] encrypted = demodulator.demodulate(48);
+                        byte[] encrypted = demodulator.demodulate(16);
                         byte[] data = aes.decrypt(encrypted);
                         System.out.println(new String(data));
                     } catch (Throwable t) {
@@ -35,24 +34,21 @@ public class Messager {
                     }
                 }
             }
-        }).start();
+        })
+        .start()
+        ;
 
 
         try {
             Modulator modulator = new Modulator();
-
-
-
             int i = 1000;
             while (true) {
-                byte[] text = ("Hello my friend! How are you? . "+i).getBytes("UTF-8");
-
+                byte[] text = (i + " ").getBytes("UTF-8");
                 byte[] encrypted = aes.encrypt(text);
                 byte[] dataPacket = modulator.modulate(encrypted);
                 AudioChannel.getOutLine().write(dataPacket, 0, dataPacket.length);
                 i++;
             }
-
         } catch (Throwable t) {
             System.out.println(t);
         }

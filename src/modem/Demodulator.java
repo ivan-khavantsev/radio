@@ -2,90 +2,65 @@ package modem;
 
 import audio.analysis.FFT;
 import audio.analysis.FourierTransform;
+import utils.Utils;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.math.BigInteger;
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
-import java.nio.ShortBuffer;
 
 public class Demodulator {
 
     private InputStream inputStream;
-    private FourierTransform fft = new FFT(Modulator.SAMPLES_PER_BIT, Modulator.SAMPLE_RATE);
+    private FourierTransform fft = new FFT(Modulator.SAMPLES_PER_DATA_BIT, Modulator.SAMPLE_RATE);
 
     public Demodulator(InputStream inputStream) {
         this.inputStream = inputStream;
     }
 
     public synchronized byte[] demodulate(int packetSize) throws Exception {
-        ByteBuffer dataBuffer = ByteBuffer.allocate(packetSize);
-        this.sync1(packetSize);
-        for (int i = 0; i < packetSize; i++) {
-            byte b = this.readByte();
-            dataBuffer.put(b);
-        }
-        return dataBuffer.array();
+        this.sync();
+        byte[] data = this.readBytes(packetSize);
+        return data;
     }
 
 
-    private void sync1(int packetSize) throws IOException {
+    private void sync() throws IOException {
         byte[] syncBytes = new byte[Modulator.SYNC_READY_BYTES.length];
         inputStream.read(syncBytes, 0, syncBytes.length);
-        float[] audioFloats = this.getFloatSamples(syncBytes);
-
+        float[] audioFloats = Utils.bytesToFloats(syncBytes);
 
         while (true) {
-            float maxAmplitude = audioFloats[max(audioFloats)];
+            float maxAmplitude = audioFloats[Utils.max(audioFloats)];
             if (maxAmplitude > 0.3f && this.getSyncCorrelation(audioFloats) > maxAmplitude - 0.1f) {
                 break;
             } else {
-                audioFloats = moveLeft(audioFloats, 1);
-                byte[] tmp = new byte[2];
-                inputStream.read(tmp, 0, tmp.length);
-                float[] newSamples = getFloatSamples(tmp);
-                audioFloats[audioFloats.length - 1] = newSamples[0];
+                audioFloats = Utils.moveLeft(audioFloats, 1);
+                byte[] tempSampleBytes = new byte[Modulator.BYTES_PER_AUDIO_SAMPLE];
+                inputStream.read(tempSampleBytes, 0, tempSampleBytes.length);
+                float[] tempSample = Utils.bytesToFloats(tempSampleBytes);
+                audioFloats[audioFloats.length - 1] = tempSample[0];
             }
         }
     }
 
-
-    public static float[] moveLeft(float[] array, int positions) {
-        float[] temp = new float[array.length];
-        System.arraycopy(array, positions, temp, 0, array.length - positions);
-        return temp;
-    }
-
-
-    private byte readByte() throws IOException {
-        int leftForByte = 8;
-        StringBuilder sb = new StringBuilder();
-
-        for (int i = 0; i < 8; i++) {
-            byte[] buffer = new byte[Modulator.SAMPLES_PER_BIT * Modulator.BYTES_PER_AUDIO_SAMPLE];
-            inputStream.read(buffer, 0, buffer.length);
-            float[] audioFloats = this.getFloatSamples(buffer);
-            int bit = this.getSamplesBit(audioFloats);
-
-            sb.append(bit);
-
-            leftForByte--;
-
-            if (leftForByte < 1) {
-                byte[] byteValue = new BigInteger(sb.toString(), 2).toByteArray();
-                if (byteValue.length == 2) {
-                    return byteValue[1];
-                } else {
-                    return byteValue[0];
-                }
+    private byte[] readBytes(int count) throws IOException {
+        byte[] result = new byte[count];
+        byte[] buffer = new byte[Modulator.SAMPLES_PER_DATA_BIT * Modulator.BYTES_PER_AUDIO_SAMPLE];
+        float[] audioFloats;
+        for (int i = 0; i < count; i++) {
+            byte b = 0;
+            for (int j = 8; j > 0; j--) {
+                inputStream.read(buffer, 0, buffer.length);
+                audioFloats = Utils.bytesToFloats(buffer);
+                int bit = this.samplesToBit(audioFloats);
+                b = (byte) (b | bit << (j - 1));
             }
+            result[i] = b;
         }
-        return 0;
+        return result;
     }
 
-    private synchronized int getSamplesBit(float[] audioFloats) {
-        fft.forward(audioFloats);
+    private int samplesToBit(float[] samples) {
+        fft.forward(samples);
         float[] spectrum = fft.getSpectrum();
 
         int bit;
@@ -96,29 +71,6 @@ public class Demodulator {
         }
         return bit;
     }
-
-
-    public static float[] getFloatSamples(byte[] bytes) {
-        ShortBuffer sbuf = ByteBuffer.wrap(bytes).order(ByteOrder.LITTLE_ENDIAN).asShortBuffer();
-        short[] audioShorts = new short[sbuf.capacity()];
-        sbuf.get(audioShorts);
-        float[] audioFloats = new float[audioShorts.length];
-        for (int i = 0; i < audioShorts.length; i++) {
-            audioFloats[i] = ((float) audioShorts[i]) / 0x8000;
-        }
-        return audioFloats;
-    }
-
-    public static int max(float[] array, int offset, int length) {
-        int max = offset;
-        for (int i = offset; i < length; i++) if (array[i] > array[max]) max = i;
-        return max;
-    }
-
-    public static int max(float[] array) {
-        return max(array, 0, array.length);
-    }
-
 
     public float getSyncCorrelation(float[] samples) {
         float[] sums = new float[Modulator.SYNC_SEQUENCE.length];
