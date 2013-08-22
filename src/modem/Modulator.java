@@ -30,6 +30,15 @@ public class Modulator {
     }
 
 
+    public static final float[] ZERO_SAMPLES;
+    public static final float[] ONE_SAMPLES;
+
+    static {
+       ZERO_SAMPLES = getWave(0);
+       ONE_SAMPLES = getWave(Math.PI);
+    }
+
+
     public byte[] modulate(byte[] data) {
         ByteBuffer samplesByteBuffer = ByteBuffer.allocate(
                 (data.length * SAMPLES_PER_DATA_BYTE * BYTES_PER_AUDIO_SAMPLE) + SYNC_READY_BYTES.length);
@@ -55,7 +64,7 @@ public class Modulator {
         return buffer;
     }
 
-    private float[] getBitSamples(byte bit) {
+    private float[] getBitSamples1(byte bit) {
         float frequency = FREQUENCIES[bit];
         float increment = (float) (2 * Math.PI) * frequency / SAMPLE_RATE;
         float samples[] = new float[SAMPLES_PER_DATA_BIT];
@@ -64,6 +73,30 @@ public class Modulator {
             angle += increment;
         }
         return samples;
+    }
+
+    private float[] getBitSamples(byte bit) {
+       if(bit == 0){
+           return ZERO_SAMPLES;
+       }else {
+           return ONE_SAMPLES;
+       }
+    }
+
+
+
+
+    public static final float FREQUENCY1 = 2756.25f;
+    public static float[] getWave(double phaseAngle) {
+        float[] wave = new float[16];
+        double angle1 = phaseAngle;
+        float increment1 = (float) (2 * Math.PI) * FREQUENCY1 / 44100;
+        for (int i = 0; i < wave.length; i++) {
+            wave[i] =  (float)( Math.sin(angle1));
+           // if(noise) wave[i] += Math.random()/2;
+            angle1 += increment1;
+        }
+        return wave;
     }
 
 }

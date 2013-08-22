@@ -15,11 +15,22 @@ public class Demodulator {
     public Demodulator(InputStream inputStream) {
         this.inputStream = inputStream;
     }
-
+    private boolean sync = false;
     public synchronized byte[] demodulate(int packetSize) throws Exception {
-        this.sync();
+        byte[] withoutSyncBytes = new byte[Modulator.SYNC_READY_BYTES.length];
+        if(!sync) {
+            this.sync();
+            sync = true;
+        }else{
+            inputStream.read(withoutSyncBytes);
+        }
+
         byte[] data = this.readBytes(packetSize);
         return data;
+    }
+
+    public void resync(){
+        sync = false;
     }
 
 
@@ -59,8 +70,9 @@ public class Demodulator {
         return result;
     }
 
-    private int samplesToBit(float[] samples) {
+    private int samplesToBit1(float[] samples) {
         fft.forward(samples);
+
         float[] spectrum = fft.getSpectrum();
 
         int bit;
@@ -71,6 +83,63 @@ public class Demodulator {
         }
         return bit;
     }
+
+    private int samplesToBit(float[] samples) {
+
+//        fft.forward(samples);
+//        float[] spect = fft.getSpectrum();
+//        fft.setBand(0,0);
+//
+//        for (int i = 2; i< spect.length;i++){
+//            fft.setBand(i,0);
+//        }
+//
+//        fft.inverse(samples);
+
+        float corr = getCorrelation(samples,Modulator.ZERO_SAMPLES);
+        if(corr > 0){
+            return 0;
+        }else{
+            return 1;
+        }
+    }
+
+
+    public static float getCorrelation(float[] signal, float[] etalon) {
+        float signalSum = sum(signal, false);
+        float etalonSum = sum(etalon, false);
+
+        float signalXetalonSum = 0;
+        for (int i = 0; i < signal.length; i++) {
+            signalXetalonSum += signal[i] * etalon[i];
+        }
+        float top = (signal.length * signalXetalonSum) - (signalSum * etalonSum);
+        float signalQuadSum = sum(signal, true);
+        float etalonQuadSum = sum(etalon, true);
+
+        float bottom1 = signal.length * signalQuadSum - signalSum*signalSum;
+        float bottom2 = signal.length * etalonQuadSum - etalonSum*etalonSum;
+
+        float bottom = (float)Math.sqrt(bottom1*bottom2);
+
+        float result = top/bottom;
+        return result;
+
+
+    }
+
+    public static float sum(float[] values, boolean quad) {
+        float sum = 0;
+        for (float v : values) {
+            if (quad) {
+                sum += v * v;
+            } else {
+                sum += v;
+            }
+        }
+        return sum;
+    }
+
 
     public float getSyncCorrelation(float[] samples) {
         float[] sums = new float[Modulator.SYNC_SEQUENCE.length];

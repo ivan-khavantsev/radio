@@ -31,6 +31,7 @@ public class Messager {
                         System.out.println(new String(data));
                     } catch (Throwable t) {
                         System.out.println(t);
+                        demodulator.resync();
                     }
                 }
             }
