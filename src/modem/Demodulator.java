@@ -34,7 +34,7 @@ public class Demodulator {
     }
 
 
-    private void sync() throws IOException {
+    private void sync1() throws IOException {
         byte[] syncBytes = new byte[Modulator.SYNC_READY_BYTES.length];
         inputStream.read(syncBytes, 0, syncBytes.length);
         float[] audioFloats = Utils.bytesToFloats(syncBytes);
@@ -52,6 +52,29 @@ public class Demodulator {
             }
         }
     }
+
+    private void sync() throws IOException {
+        byte[] syncBytes = new byte[Modulator.SYNC_READY_BYTES.length];
+        inputStream.read(syncBytes, 0, syncBytes.length);
+        float[] audioFloats = Utils.bytesToFloats(syncBytes);
+
+        while (true) {
+            //float maxAmplitude = audioFloats[Utils.max(audioFloats)];
+            float syncCorelation = getCorrelation(audioFloats,Modulator.SYNC_SAMPLES);
+            if (syncCorelation > 0.8f) {
+                break;
+            } else {
+                audioFloats = Utils.moveLeft(audioFloats, 1);
+                byte[] tempSampleBytes = new byte[Modulator.BYTES_PER_AUDIO_SAMPLE];
+                inputStream.read(tempSampleBytes, 0, tempSampleBytes.length);
+                float[] tempSample = Utils.bytesToFloats(tempSampleBytes);
+                audioFloats[audioFloats.length - 1] = tempSample[0];
+            }
+        }
+
+    }
+
+
 
     private byte[] readBytes(int count) throws IOException {
         byte[] result = new byte[count];

@@ -18,14 +18,26 @@ public class Modulator {
 
     private static final float[] FREQUENCIES = {689, 2756};   //0 - 689 MHz, 1 -2756 MHz
     private float angle = 0;
+    public static final float[] SYNC_SAMPLES;
 
     static {
-        float[] tempSync = new float[SYNC_SEQUENCE.length * SYNC_SAMPLES_PER_SYMBOL];
-        for (int i = 0; i < SYNC_SEQUENCE.length; i++) {
-            for (int j = 0; j < SYNC_SAMPLES_PER_SYMBOL; j++) {
-                tempSync[i * SYNC_SAMPLES_PER_SYMBOL + j] = SYNC_SEQUENCE[i];
-            }
-        }
+//        float[] tempSync = new float[SYNC_SEQUENCE.length * SYNC_SAMPLES_PER_SYMBOL];
+//        for (int i = 0; i < SYNC_SEQUENCE.length; i++) {
+//            for (int j = 0; j < SYNC_SAMPLES_PER_SYMBOL; j++) {
+//                tempSync[i * SYNC_SAMPLES_PER_SYMBOL + j] = SYNC_SEQUENCE[i];
+//            }
+//        }
+
+        float[] tempSync = new float[SAMPLES_PER_DATA_BIT*2];
+
+        float[] upHalfWave = getWave(8,0);
+        float[] downHalfWave = getWave(8,Math.PI);
+
+        System.arraycopy(upHalfWave, 0, tempSync, 0, upHalfWave.length);
+        System.arraycopy(upHalfWave, 0, tempSync, 8, upHalfWave.length);
+        System.arraycopy(downHalfWave, 0, tempSync, 16, downHalfWave.length);
+        System.arraycopy(downHalfWave, 0, tempSync, 24, downHalfWave.length);
+        SYNC_SAMPLES = tempSync;
         SYNC_READY_BYTES = Utils.floatsToBytes(tempSync);
     }
 
@@ -34,8 +46,8 @@ public class Modulator {
     public static final float[] ONE_SAMPLES;
 
     static {
-       ZERO_SAMPLES = getWave(0);
-       ONE_SAMPLES = getWave(Math.PI);
+       ZERO_SAMPLES = getWave(SAMPLES_PER_DATA_BIT, 0);
+       ONE_SAMPLES = getWave(SAMPLES_PER_DATA_BIT, Math.PI);
     }
 
 
@@ -87,8 +99,8 @@ public class Modulator {
 
 
     public static final float FREQUENCY1 = 2756.25f;
-    public static float[] getWave(double phaseAngle) {
-        float[] wave = new float[16];
+    public static float[] getWave(int samples, double phaseAngle) {
+        float[] wave = new float[samples];
         double angle1 = phaseAngle;
         float increment1 = (float) (2 * Math.PI) * FREQUENCY1 / 44100;
         for (int i = 0; i < wave.length; i++) {
