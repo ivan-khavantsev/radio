@@ -4,24 +4,25 @@ import audio.analysis.FFT;
 import audio.analysis.FourierTransform;
 import utils.Utils;
 
+import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
 public class Demodulator {
 
     private InputStream inputStream;
-    private FourierTransform fft = new FFT(Modulator.SAMPLES_PER_DATA_BIT, Modulator.SAMPLE_RATE);
+    private boolean sync = false;
 
     public Demodulator(InputStream inputStream) {
-        this.inputStream = inputStream;
+        this.inputStream = new BufferedInputStream(inputStream, 320);
     }
-    private boolean sync = false;
+
     public synchronized byte[] demodulate(int packetSize) throws Exception {
         byte[] withoutSyncBytes = new byte[Modulator.SYNC_READY_BYTES.length];
-        if(!sync) {
+        if (!sync) {
             this.sync();
             sync = true;
-        }else{
+        } else {
             inputStream.read(withoutSyncBytes);
         }
 
@@ -29,28 +30,8 @@ public class Demodulator {
         return data;
     }
 
-    public void resync(){
+    public void resync() {
         sync = false;
-    }
-
-
-    private void sync1() throws IOException {
-        byte[] syncBytes = new byte[Modulator.SYNC_READY_BYTES.length];
-        inputStream.read(syncBytes, 0, syncBytes.length);
-        float[] audioFloats = Utils.bytesToFloats(syncBytes);
-
-        while (true) {
-            float maxAmplitude = audioFloats[Utils.max(audioFloats)];
-            if (maxAmplitude > 0.3f && this.getSyncCorrelation(audioFloats) > maxAmplitude - 0.1f) {
-                break;
-            } else {
-                audioFloats = Utils.moveLeft(audioFloats, 1);
-                byte[] tempSampleBytes = new byte[Modulator.BYTES_PER_AUDIO_SAMPLE];
-                inputStream.read(tempSampleBytes, 0, tempSampleBytes.length);
-                float[] tempSample = Utils.bytesToFloats(tempSampleBytes);
-                audioFloats[audioFloats.length - 1] = tempSample[0];
-            }
-        }
     }
 
     private void sync() throws IOException {
@@ -59,8 +40,7 @@ public class Demodulator {
         float[] audioFloats = Utils.bytesToFloats(syncBytes);
 
         while (true) {
-            //float maxAmplitude = audioFloats[Utils.max(audioFloats)];
-            float syncCorelation = getCorrelation(audioFloats,Modulator.SYNC_SAMPLES);
+            float syncCorelation = getCorrelation(audioFloats, Modulator.SYNC_SAMPLES);
             if (syncCorelation > 0.8f) {
                 break;
             } else {
@@ -73,7 +53,6 @@ public class Demodulator {
         }
 
     }
-
 
 
     private byte[] readBytes(int count) throws IOException {
@@ -93,62 +72,39 @@ public class Demodulator {
         return result;
     }
 
-    private int samplesToBit1(float[] samples) {
-        fft.forward(samples);
-
-        float[] spectrum = fft.getSpectrum();
-
-        int bit;
-        if (spectrum[0] > spectrum[1]) {
-            bit = 0;
-        } else {
-            bit = 1;
-        }
-        return bit;
-    }
-
     private int samplesToBit(float[] samples) {
-
-//        fft.forward(samples);
-//        float[] spect = fft.getSpectrum();
-//        fft.setBand(0,0);
-//
-//        for (int i = 2; i< spect.length;i++){
-//            fft.setBand(i,0);
-//        }
-//
-//        fft.inverse(samples);
-
-        float corr = getCorrelation(samples,Modulator.ZERO_SAMPLES);
-        if(corr > 0){
+        float correlation = getCorrelation(samples, Modulator.ZERO_SAMPLES);
+        if (correlation > 0) {
             return 0;
-        }else{
+        } else {
             return 1;
         }
     }
 
+    //TODO: CALC FOR POPULAR ETALON
+    /*
+     * Корреляция Пирсона
+     * http://cito-web.yspu.org/link1/metod/met125/node35.html
+     */
+    public static float getCorrelation(float[] signal1, float[] signal2) {
+        float signal1Sum = sum(signal1, false);
+        float signal2Sum = sum(signal2, false);
 
-    public static float getCorrelation(float[] signal, float[] etalon) {
-        float signalSum = sum(signal, false);
-        float etalonSum = sum(etalon, false);
-
-        float signalXetalonSum = 0;
-        for (int i = 0; i < signal.length; i++) {
-            signalXetalonSum += signal[i] * etalon[i];
+        float signalsMultSum = 0;
+        for (int i = 0; i < signal1.length; i++) {
+            signalsMultSum += signal1[i] * signal2[i];
         }
-        float top = (signal.length * signalXetalonSum) - (signalSum * etalonSum);
-        float signalQuadSum = sum(signal, true);
-        float etalonQuadSum = sum(etalon, true);
+        float top = (signal1.length * signalsMultSum) - (signal1Sum * signal2Sum);
+        float signal1QuadSum = sum(signal1, true);
+        float signal2QuadSum = sum(signal2, true);
 
-        float bottom1 = signal.length * signalQuadSum - signalSum*signalSum;
-        float bottom2 = signal.length * etalonQuadSum - etalonSum*etalonSum;
+        float bottom1 = signal1.length * signal1QuadSum - signal1Sum * signal1Sum;
+        float bottom2 = signal2.length * signal2QuadSum - signal2Sum * signal2Sum;
 
-        float bottom = (float)Math.sqrt(bottom1*bottom2);
+        float bottom = (float) Math.sqrt(bottom1 * bottom2);
 
-        float result = top/bottom;
+        float result = top / bottom;
         return result;
-
-
     }
 
     public static float sum(float[] values, boolean quad) {
@@ -161,24 +117,6 @@ public class Demodulator {
             }
         }
         return sum;
-    }
-
-
-    public float getSyncCorrelation(float[] samples) {
-        float[] sums = new float[Modulator.SYNC_SEQUENCE.length];
-        float r = 0;
-        for (int i = 0; i < Modulator.SYNC_SEQUENCE.length; i++) {
-            float s = 0;
-            for (int j = 0; j < Modulator.SYNC_SAMPLES_PER_SYMBOL; j++) {
-                int cc = i * Modulator.SYNC_SAMPLES_PER_SYMBOL + j;
-                s = s + samples[cc];
-            }
-            sums[i] = s;
-            r = r + (sums[i] * Modulator.SYNC_SEQUENCE[i]) / Modulator.SYNC_SAMPLES_PER_SYMBOL;
-        }
-
-        float result = r / Modulator.SYNC_SEQUENCE.length;
-        return result;
     }
 
 }
