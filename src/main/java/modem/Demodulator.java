@@ -1,7 +1,5 @@
 package modem;
 
-import audio.analysis.FFT;
-import audio.analysis.FourierTransform;
 import utils.Utils;
 
 import java.io.BufferedInputStream;
@@ -13,8 +11,10 @@ public class Demodulator {
     private InputStream inputStream;
     private boolean sync = false;
 
+    public static final int DEMODULATOR_STREAM_BUFFER_SIZE = 1024;
+
     public Demodulator(InputStream inputStream) {
-        this.inputStream = new BufferedInputStream(inputStream, 320);
+        this.inputStream = new BufferedInputStream(inputStream, DEMODULATOR_STREAM_BUFFER_SIZE);
     }
 
     public synchronized byte[] demodulate(int packetSize) throws Exception {
@@ -81,15 +81,14 @@ public class Demodulator {
         }
     }
 
+    private static final float[] SYNC_CALCED = {10.054679870605469f, 16.0f, 410.9034118652344f}; //SUM, QuadSum, Bottom2
+    private static final float[] ZERO_CALCED = {4.172325134277344E-7f, 8.000000953674316f, 128.00001525878906f};
+
     //TODO: CALC FOR POPULAR ETALON
     /*
      * Корреляция Пирсона
      * http://cito-web.yspu.org/link1/metod/met125/node35.html
      */
-
-    float[] SYNC_CALCED = {10.054679870605469f, 16.0f, 410.9034118652344f}; //SUM, QuadSum, Bottom2
-    float[] ZERO_CALCED = {4.172325134277344E-7f, 8.000000953674316f, 128.00001525878906f};
-
     public static float getCorrelation(float[] signal1, float[] signal2, float[] values) {
         float signal1Sum = sum(signal1, false);
 //        float signal2Sum = sum(signal2, false);
