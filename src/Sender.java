@@ -7,7 +7,6 @@ import org.xiph.speex.SpeexEncoder;
 import javax.sound.sampled.*;
 
 public class Sender implements Runnable {
-    AudioFormat channelAudioFormat = new AudioFormat(AudioFormat.Encoding.PCM_SIGNED, 44100, 16, 1, 2, 44100, false);
     AudioFormat micAudioFormat = new AudioFormat(AudioFormat.Encoding.PCM_SIGNED, 8000.0F, 16, 1, 2, 8000.0F, false);
 
     @Override
@@ -16,7 +15,7 @@ public class Sender implements Runnable {
 
 
             Mixer.Info[] mixerInfo = AudioSystem.getMixerInfo();
-            Mixer mixer = AudioSystem.getMixer(mixerInfo[7]);
+            Mixer mixer = AudioSystem.getMixer(mixerInfo[8]);
             final TargetDataLine line = (TargetDataLine) mixer.getLine(new DataLine.Info(TargetDataLine.class, micAudioFormat));
             line.open();
             line.start();

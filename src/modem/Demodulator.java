@@ -40,7 +40,7 @@ public class Demodulator {
         float[] audioFloats = Utils.bytesToFloats(syncBytes);
 
         while (true) {
-            float syncCorelation = getCorrelation(audioFloats, Modulator.SYNC_SAMPLES);
+            float syncCorelation = getCorrelation(audioFloats, Modulator.SYNC_SAMPLES, SYNC_CALCED);
             if (syncCorelation > 0.8f) {
                 break;
             } else {
@@ -73,7 +73,7 @@ public class Demodulator {
     }
 
     private int samplesToBit(float[] samples) {
-        float correlation = getCorrelation(samples, Modulator.ZERO_SAMPLES);
+        float correlation = getCorrelation(samples, Modulator.ZERO_SAMPLES, ZERO_CALCED);
         if (correlation > 0) {
             return 0;
         } else {
@@ -86,9 +86,15 @@ public class Demodulator {
      * Корреляция Пирсона
      * http://cito-web.yspu.org/link1/metod/met125/node35.html
      */
-    public static float getCorrelation(float[] signal1, float[] signal2) {
+
+    float[] SYNC_CALCED = {10.054679870605469f, 16.0f, 410.9034118652344f}; //SUM, QuadSum, Bottom2
+    float[] ZERO_CALCED = {4.172325134277344E-7f, 8.000000953674316f, 128.00001525878906f};
+
+    public static float getCorrelation(float[] signal1, float[] signal2, float[] values) {
         float signal1Sum = sum(signal1, false);
-        float signal2Sum = sum(signal2, false);
+//        float signal2Sum = sum(signal2, false);
+        float signal2Sum = values[0];
+
 
         float signalsMultSum = 0;
         for (int i = 0; i < signal1.length; i++) {
@@ -96,10 +102,12 @@ public class Demodulator {
         }
         float top = (signal1.length * signalsMultSum) - (signal1Sum * signal2Sum);
         float signal1QuadSum = sum(signal1, true);
-        float signal2QuadSum = sum(signal2, true);
+//        float signal2QuadSum = sum(signal2, true);
+        float signal2QuadSum = values[1];
 
         float bottom1 = signal1.length * signal1QuadSum - signal1Sum * signal1Sum;
-        float bottom2 = signal2.length * signal2QuadSum - signal2Sum * signal2Sum;
+//        float bottom2 = signal2.length * signal2QuadSum - signal2Sum * signal2Sum;
+        float bottom2 = values[2];
 
         float bottom = (float) Math.sqrt(bottom1 * bottom2);
 

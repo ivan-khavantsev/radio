@@ -30,7 +30,7 @@ public class Messager {
                         byte[] data = aes.decrypt(encrypted);
                         System.out.println(new String(data));
                     } catch (Throwable t) {
-                        System.out.println(t);
+                        System.out.println("err1: "+ t);
                         demodulator.resync();
                     }
                 }

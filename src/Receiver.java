@@ -51,6 +51,7 @@ public class Receiver implements Runnable {
 
                 }catch (Throwable t){
                     System.out.println(t);
+                    demodulator.resync();
                 }
 
             }
