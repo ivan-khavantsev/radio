@@ -90,9 +90,9 @@ public class Demodulator {
      * http://cito-web.yspu.org/link1/metod/met125/node35.html
      */
     public static float getCorrelation(float[] signal1, float[] signal2, float[] values) {
-        float signal1Sum = sum(signal1, false);
-//        float signal2Sum = sum(signal2, false);
-        float signal2Sum = values[0];
+        float signal1Sum = sum(signal1);
+        float signal2Sum = sum(signal2);
+//        float signal2Sum = values[0];
 
 
         float signalsMultSum = 0;
@@ -100,13 +100,13 @@ public class Demodulator {
             signalsMultSum += signal1[i] * signal2[i];
         }
         float top = (signal1.length * signalsMultSum) - (signal1Sum * signal2Sum);
-        float signal1QuadSum = sum(signal1, true);
-//        float signal2QuadSum = sum(signal2, true);
-        float signal2QuadSum = values[1];
+        float signal1QuadSum = quadSum(signal1);
+//        float signal2QuadSum = values[1];
+        float signal2QuadSum = quadSum(signal2);
 
         float bottom1 = signal1.length * signal1QuadSum - signal1Sum * signal1Sum;
-//        float bottom2 = signal2.length * signal2QuadSum - signal2Sum * signal2Sum;
-        float bottom2 = values[2];
+        float bottom2 = signal2.length * signal2QuadSum - signal2Sum * signal2Sum;
+//        float bottom2 = values[2];
 
         float bottom = (float) Math.sqrt(bottom1 * bottom2);
 
@@ -114,14 +114,18 @@ public class Demodulator {
         return result;
     }
 
-    public static float sum(float[] values, boolean quad) {
+    public static float sum(float[] values) {
         float sum = 0;
         for (float v : values) {
-            if (quad) {
-                sum += v * v;
-            } else {
                 sum += v;
-            }
+        }
+        return sum;
+    }
+
+    public static float quadSum(float[] values){
+        float sum = 0;
+        for (float v: values){
+            sum += v*v;
         }
         return sum;
     }
